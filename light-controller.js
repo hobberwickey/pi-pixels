@@ -18,8 +18,8 @@ class LightController {
     timer.setInterval(() => {
       var i=NUM_LEDS;
       while(i--) {
-          var pixel = this.pixels[i] || [0, 0, 255];
-          pixelData[i] = (pixel[0] << 16) + (pixel[1] << 8) + (pixel[2] << 0)
+          var pixel = this.pixels[i] || [0, 0, 0];
+          pixelData[i] = (pixel[1] << 16) + (pixel[0] << 8) + (pixel[2] << 0)
       }
 
       ws281x.render(pixelData);
