@@ -15,8 +15,12 @@ var lights = new LightController()
 var io = require('socket.io-client'),
     socket = io(`https://pi-pixel-server.herokuapp.com/`, {transports: ['websocket'], upgrade: false, path: "/io"});
 
-socket.emit("join", {room: process.env("ROOM") || "test"});
+socket.emit("join", {room: process.env["ROOM"] || "test"});
+
+socket.on("joined", (resp) => {
+  console.log("joined", resp)
+})
 
 socket.on("pixels", (data) => {
-  console.log(data);
+  lights.set(data);
 })

@@ -1,12 +1,22 @@
-var timer = new (require('nanotimer'))();
+const timer = new (require('nanotimer'))();
+const ws281x = require('rpi-ws281x-native');
+
+var NUM_LEDS = 10,
+    pixelData = new Uint32Array(NUM_LEDS);
+
+ws281x.init(NUM_LEDS);
 
 class LightController {
   constructor() {
     this.pixels = [];
 
-    // timer.setInterval(() => {
-    //   console.log(this.pixels)
-    // }, "", '41ms') 
+    timer.setInterval(() => {
+      var i=NUM_LEDS;
+      while(i--) {
+          pixelData[i] = (pixels[i] << 16) + (pixels[i] << 8) + (pixels[i] << 0)
+      }
+      ws281x.render(pixelData);
+    }, "", '41ms') 
   }
 
   set(pixels) {
