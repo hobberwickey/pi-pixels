@@ -25,7 +25,7 @@ class LightController {
           pixels = this.bufferReady ? this.buffers[this.bufferIdx][this.bufferFrame] : [];
 
       if (this.bufferFrame === 0) {
-        console.log(pixels)
+        console.log(this.bufferReady, this.bufferIdx, pixels)
       }
       while(i--) {
           var pixel = pixels[i] || [0, 0, 0];
