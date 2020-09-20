@@ -40,7 +40,7 @@ class LightController {
         }
       }
        
-    }, "", (1000 / 24) + "ms") 
+    }, "", "0.041s") 
   }
 
   set(buffer) {
