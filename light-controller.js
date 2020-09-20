@@ -45,10 +45,11 @@ class LightController {
   set(buffer) {
     console.log(this.buffers.length)
 
-    this.buffers[this.bufferIdx === 0 ? 1 : 0] = buffer;
-
     if (this.buffers.length === 2) {
+      this.buffers[this.bufferIdx === 0 ? 1 : 0] = buffer;
       this.bufferReady = 1;
+    } else {
+      this.buffers[this.buffers.length] = buffer;
     }
   }
 
