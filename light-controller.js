@@ -19,6 +19,7 @@ class LightController {
     });
 
     timer.setInterval(() => {
+      console.log(this.bufferReady)
       var i=this.numPixels,
           pixelData = this.pixelData,
           pixels = {
