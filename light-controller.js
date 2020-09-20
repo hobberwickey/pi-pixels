@@ -20,6 +20,8 @@ class LightController {
     });
 
     timer.setInterval(() => {
+      console.log(this.bufferIdx, this.bufferFrame)
+
       var i=this.numPixels,
           pixelData = this.pixelData,
           pixels = this.bufferReady ? this.buffers[this.bufferIdx][this.bufferFrame] : [];
@@ -43,8 +45,6 @@ class LightController {
   }
 
   set(buffer) {
-    console.log(this.buffers.length)
-
     if (this.buffers.length === 2) {
       this.buffers[this.bufferIdx === 0 ? 1 : 0] = buffer;
       this.bufferReady = 1;
