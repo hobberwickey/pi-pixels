@@ -14,12 +14,12 @@ class LightController {
     ws281x.init(this.numPixels);
 
     process.on('SIGINT', function () {
+      console.log("closing")
       ws281x.reset();
       process.nextTick(function () { process.exit(0); });
     });
 
     timer.setInterval(() => {
-      console.log(this.bufferReady)
       var i=this.numPixels,
           pixelData = this.pixelData,
           pixels = this.bufferReady ? this.buffers[this.bufferIdx][this.bufferFrame] : [];
