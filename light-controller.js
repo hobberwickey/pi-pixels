@@ -1,11 +1,6 @@
 const timer = new (require('nanotimer'))();
 const ws281x = require('rpi-ws281x-native');
 
-var NUM_LEDS = 10,
-    
-
-ws281x.init(NUM_LEDS);
-
 class LightController {
   constructor(numPixels) {
     this.numPixels = numPixels || 10;
@@ -15,6 +10,8 @@ class LightController {
     this.bufferIdx = 1;
     this.bufferFrame = 0;
     this.bufferReady = false;
+
+    ws281x.init(this.numPixels);
 
     process.on('SIGINT', function () {
       ws281x.reset();
