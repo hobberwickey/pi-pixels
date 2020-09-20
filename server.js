@@ -22,7 +22,5 @@ socket.on("joined", (resp) => {
 })
 
 socket.on("pixels", (data) => {
-  console.log(data)
-
   lights.set(data);
 })
