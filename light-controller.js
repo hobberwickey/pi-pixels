@@ -24,6 +24,7 @@ class LightController {
           pixelData = this.pixelData,
           pixels = this.bufferReady ? this.buffers[this.bufferIdx][this.bufferFrame] : [];
 
+      console.log(this.bufferFrame)
       while(i--) {
           var pixel = pixels[i] || [0, 0, 0];
           pixelData[i] = (pixel[1] << 16) + (pixel[0] << 8) + (pixel[2] << 0)
@@ -43,7 +44,7 @@ class LightController {
   }
 
   set(buffer) {
-    console.log(buffer)
+    // console.log(buffer)
 
     if (this.buffers.length === 2) {
       this.buffers[this.bufferIdx === 0 ? 1 : 0] = buffer;
