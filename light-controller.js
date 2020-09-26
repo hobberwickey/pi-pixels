@@ -3,7 +3,7 @@ const ws281x = require('rpi-ws281x-native');
 
 class LightController {
   constructor(numPixels) {
-    this.numPixels = numPixels || 10;
+    this.numPixels = numPixels || 300;
     this.pixelData = new Uint32Array(this.numPixels);
     this.pixels = [];
     this.buffers = [];
