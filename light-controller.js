@@ -29,7 +29,7 @@ class LightController {
           pixelData[i] = (pixel[1] << 16) + (pixel[0] << 8) + (pixel[2] << 0)
       }
 
-      console.log(pixelData[0])
+      console.log(pixelData[0].toString(16))
       ws281x.render(pixelData);
       
       if (this.bufferReady) {
