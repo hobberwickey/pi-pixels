@@ -13,7 +13,7 @@ const LightController = require("./light-controller");
 var lights = new LightController()
 
 var io = require('socket.io-client'),
-    socket = io(`http://localhost:4000`, {transports: ['websocket'], upgrade: false, path: "/io"});
+    socket = io(`http://pi-pixel-server.herokuapp.com/`, {transports: ['websocket'], upgrade: false, path: "/io"});
 
 socket.emit("join", {room: process.env["ROOM"] || "test"});
 
