@@ -24,12 +24,12 @@ class LightController {
           pixelData = this.pixelData,
           pixels = this.bufferReady ? this.buffers[this.bufferIdx][this.bufferFrame] : [];
 
+      console.log(this.bufferIdx, this.bufferFrame, pixels[0])
       while(i--) {
           var pixel = pixels[i] || [0, 0, 0];
           pixelData[i] = (pixel[1] << 16) + (pixel[0] << 8) + (pixel[2] << 0)
       }
 
-      console.log(pixelData[0].toString(16))
       ws281x.render(pixelData);
       
       if (this.bufferReady) {
