@@ -145,14 +145,14 @@ class PixelDriver {
   }
 
   sendFrame(frame) {
-    // console.log(JSON.parse(frame));
+    console.log(JSON.parse(frame));
 
     // while(i--) {
     //     var pixel = pixels[i] || [0, 0, 0];
     //     pixelData[i] = (pixel[1] << 16) + (pixel[0] << 8) + (pixel[2] << 0)
     // }
 
-    ws281x.render(frame[0]);
+    ws281x.render(JSON.parse(frame));
   }
 
   addStrand(data) {
