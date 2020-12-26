@@ -63,8 +63,7 @@ class Group {
     this.worker.on("message", (e) => {
       for (var i=0; i<this.layout.length; i++) {
         var strand = this.strands[this.layout[i].strand];
-            strand.pixels[this.layout[i].idx] = (e.frame[i][1] << 16) + (e.frame[i][0] << 8) + (e.frame[i][2] << 0)
-        
+            strand.pixels[this.layout[i].idx] = [e.frame[i][0], e.frame[i][1], e.frame[i][2]];
       }
 
       /*
@@ -135,13 +134,21 @@ class PixelDriver {
   }
 
   buildFrame() {
-    var frame = [];
-
+    var frames = [] 
     for (var x in this.strands) {
-      frame.push(this.strands[x].pixels)
+      var pixels = this.strands[x].pixels,
+          i = pixels.length,
+          frame = new Uint32Array(i);
+          
+      while(i--) {
+          var pixel = pixels[i] || [0, 0, 0];
+          frame[i] = (pixel[1] << 16) + (pixel[0] << 8) + (pixel[2] << 0)
+      }
+
+      frames.push(frame)
     }
 
-    return frame
+    return frames
     // return JSON.stringify(frame);
   }
 
