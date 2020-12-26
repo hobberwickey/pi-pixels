@@ -152,6 +152,7 @@ class PixelDriver {
     //     pixelData[i] = (pixel[1] << 16) + (pixel[0] << 8) + (pixel[2] << 0)
     // }
 
+    console.log(frame)
 
     ws281x.render(frame[0]);
   }
