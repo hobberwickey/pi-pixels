@@ -1,6 +1,8 @@
 const timer = new (require('nanotimer'))();
 const { Worker } = require('worker_threads');
 
+const HID = require('node-hid');
+    
 const present = require('present');
 const ws281x = require('rpi-ws281x-native');
 
@@ -28,6 +30,9 @@ class Group {
 
       parentPort.postMessage({id: '${ id }', frameIdx: frameIdx, frame: frame});
     `
+
+    var devices = HID.devices();
+    console.log(devices)
 
     this.createWorker(defaultCode)
   }
@@ -159,8 +164,8 @@ class PixelDriver {
     //     pixelData[i] = (pixel[1] << 16) + (pixel[0] << 8) + (pixel[2] << 0)
     // }
 
-    console.log(frame[0]);
-    ws281x.render(frame[0]);
+    // console.log(frame[0]);
+    // ws281x.render(frame[0]);
   }
 
   addStrand(data) {
