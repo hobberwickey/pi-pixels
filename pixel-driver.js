@@ -31,9 +31,6 @@ class Group {
       parentPort.postMessage({id: '${ id }', frameIdx: frameIdx, frame: frame});
     `
 
-    var devices = HID.devices();
-    console.log(devices)
-
     this.createWorker(defaultCode)
   }
 
@@ -96,7 +93,10 @@ class PixelDriver {
 
     this.active = false;
 
-    ws281x.init(300);
+    // ws281x.init(300);
+
+    var devices = HID.devices();
+    console.log("Devices", devices)
 
     process.on('SIGINT', function () {
       console.log("closing")
