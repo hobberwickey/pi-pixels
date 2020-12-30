@@ -67,11 +67,6 @@ class Group {
         var strand = this.strands[this.layout[i].strand];
             strand.pixels[this.layout[i].idx] = [e.frame[i][0], e.frame[i][1], e.frame[i][2]];
       }
-
-      /*
-        Take the pixel array returned by the worker, then set run through the 
-        layout and set the pixel data on the appropriate strand
-      */
     })
 
     this.worker.postMessage("hello"); 
@@ -99,7 +94,6 @@ class PixelDriver {
     console.log("Devices", devices)
 
     process.on('SIGINT', function () {
-      console.log("closing")
       ws281x.reset();
       process.nextTick(function () { process.exit(0); });
     });
