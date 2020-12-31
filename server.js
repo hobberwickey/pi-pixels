@@ -12,23 +12,24 @@ const server = app.listen(port, () => {
 const PixelDriver = require("./pixel-driver");
 
 // var lights = new LightController()
-var pixels = new PixelDriver()
-
 var io = require('socket.io-client'),
     socket = io(`http://pi-pixel-server.herokuapp.com/`, {transports: ['websocket'], upgrade: false, path: "/io"});
 
-socket.emit("join", {room: process.env["ROOM"] || "test"});
+// socket.emit("join", {room: process.env["ROOM"] || "test"});
 
-socket.on("joined", (resp) => {
-  console.log("joined", resp)
+// socket.on("joined", (resp) => {
+//   console.log("joined", resp)
 
-  pixels.start();
-})
+  
+// })
 
-socket.on("pixels", (data) => {
-  // lights.set(data);
-})
+// socket.on("pixels", (data) => {
+//   // lights.set(data);
+// })
 
+
+var pixels = new PixelDriver();
+  	pixels.start();
 
 socket.on("strand", (data) => {
 	switch(data.action) {

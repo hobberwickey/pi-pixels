@@ -100,21 +100,48 @@ class PixelDriver {
     usb.getDeviceList().map((device) => {
       if (device.deviceDescriptor.idVendor === 0x16c0) {
         device.open();
-        
-        var id = this.genUUID();
 
-        this.devices[id] = {
-          id: id,
-          productId: device.deviceDescriptor.idProduct,
-          vendorId: device.deviceDescriptor.idVendor,
-          productName: "Teensy 4.0",
-          productVendor: "teensy",
-          api: device ,
-          in: device.interfaces[1].endpoints[1],
-          out: device.interfaces[1].endpoints[0],
-          pins: [3, 5, 7, 9, 11, 14, 16, 18, 20, 22],
-          frame: null
-        }  
+        device.interfaces.map((face) => {
+          var id = this.genUUID(),
+              usbIn = null,
+              usbOut = null;
+
+          face.endpoints.map((endpoint) => {
+            if (endpoint.direction === "in") {
+              usbIn = endpoint;
+            } else if (endpoint.direction === "out") {
+              usbOut = endpoint;
+            }
+          })
+
+          if (usbIn !== null && usbOut !== null) {
+            if (face.isKernelDriverActive()) {
+              face.detachKernelDriver()
+            }
+
+            usbIn.startPoll(1, 1024)
+            usbIn.on('data', (data) => {
+              // console.log("From Teensy: ", data.toString())
+            })
+            usbIn.on("error", (err) => {
+              // console.log(err)
+            })
+
+            this.devices[id] = {
+              id: id,
+              productId: device.deviceDescriptor.idProduct,
+              vendorId: device.deviceDescriptor.idVendor,
+              productName: "Teensy 4.0",
+              productVendor: "teensy",
+              api: device,
+              interface: face,
+              in: usbIn,
+              out: usbOut,
+              pins: [2, 3, 5, 7, 8, 11, 14, 16, 18, 22],
+              frame: null
+            }
+          }
+        })
       }
     })
 
@@ -151,7 +178,7 @@ class PixelDriver {
 
       this.lastTick = now;
       this.frameCounter++;       
-    }, "", "0.041s") 
+    }, "", "5.000s") 
   }
 
   genUUID() {
@@ -168,23 +195,28 @@ class PixelDriver {
 
     for (var x in this.strands) {
       var strand = this.strands[x],
-          device = this.devices[strand.device],
-          frame = device.frame,
+          device = this.devices[strand.device];
+
+      if (!device) {
+        continue
+      }
+
+      var frame = device.frame,
           pinOffset = device.pins.indexOf(strand.pin) * 300,
           pixels = strand.pixels,
           lenPixels = pixels.length;
       
       var i = lenPixels
       while(i--) {
-          var pixel = pixels[i] || [0, 0, 0],
-              idx = pinOffset + i,
-              offset = idx * 5;
+        var pixel = pixels[i] || [0, 0, 0],
+            idx = pinOffset + i,
+            offset = idx * 5;
 
-          frame[offset + 0] = (idx & 0xff00) >> 8;
-          frame[offset + 1] = (idx & 0x00ff);
-          frame[offset + 2] = pixel[1];
-          frame[offset + 3] = pixel[0];
-          frame[offset + 4] = pixel[2]; 
+        frame[offset + 0] = (idx & 0xff00) >> 8;
+        frame[offset + 1] = (idx & 0x00ff);
+        frame[offset + 2] = pixel[1];
+        frame[offset + 3] = pixel[0];
+        frame[offset + 4] = pixel[2]; 
       }
     }
   }
@@ -194,12 +226,19 @@ class PixelDriver {
 
     for (var x in devices) {
       if (devices[x].frame !== null) {
-        // console.log(devices[x])
-
-        devices[x].out.claim();
-        devices[x].transfer(devices[x].frame, () => {
-          devices[x].out.release();
-        })
+        for (var i=0; i<devices[x].frame.length; i++) {
+          console.log(i, devices[x].frame[i]);
+        }
+        
+        // console.log(devices[x].frame.slice(300, 600));
+        // try {
+        //   devices[x].interface.claim();
+        //   devices[x].out.transfer(devices[x].frame, () => {
+        //     devices[x].interface.release(() => {});
+        //   })
+        // } catch(e) {
+        //   console.log(e)
+        // }
       }
     }
 
