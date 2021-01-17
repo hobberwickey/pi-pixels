@@ -54,6 +54,7 @@ var io = require('socket.io-client'),
 
 socket.emit("join", {room: process.env["ROOM"] || "test"});
 socket.on("joined", (resp) => {
+	console.log("joined")
 	socket.emit("device", {room: process.env["ROOM"] || "test", devices: pixels.devices})
 })
 
