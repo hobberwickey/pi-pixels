@@ -22,10 +22,17 @@ class Group {
     this.layout = layout || [];
 
     var defaultCode = `
-      frame = [];
+      var frame = [],
+          rFrequency = 0.1;
+          bFrequency = 0.11;
+          gFrequency = 0.49;
 
       for (var i=0; i<pixelCount; i++) {
-        frame[i] = [255, 255, 0]
+        var r = 0.5 * (1 + Math.sin(2 * Math.PI * rFrequency * ((frameIdx + i) * (1 / 24)))),
+            g = 0.5 * (1 + Math.sin(2 * Math.PI * gFrequency * ((frameIdx + i) * (1 / 24)))),
+            b = 0.5 * (1 + Math.sin(2 * Math.PI * bFrequency * (frameIdx + i) * (1 / 24)));
+        
+        frame[i] = [r * 255, g * 255, b * 255];
       }
 
       parentPort.postMessage({id: '${ id }', frameIdx: frameIdx, frame: frame});
@@ -93,10 +100,9 @@ class PixelDriver {
     this.fps = 24;    
 
     this.active = false;
+    this.sending = false;
 
     // ws281x.init(300);
-
-    
     usb.getDeviceList().map((device) => {
       if (device.deviceDescriptor.idVendor === 0x16c0) {
         device.open();
@@ -137,7 +143,7 @@ class PixelDriver {
               interface: face,
               in: usbIn,
               out: usbOut,
-              pins: [2, 3, 5, 7, 8, 11, 14, 16, 18, 22],
+              pins: [2, 3, 4, 7, 8, 9, 10, 11, 12, 15],
               frame: null
             }
           }
@@ -157,8 +163,14 @@ class PixelDriver {
 
     var deviceId = Object.keys(this.devices)[0] || "test";
 
+    this.addStrand({device: deviceId, pin: 2, count: 300})
     this.addStrand({device: deviceId, pin: 3, count: 300})
+    this.addStrand({device: deviceId, pin: 4, count: 300})
+    this.addStrand({device: deviceId, pin: 7, count: 300})
+    this.addStrand({device: deviceId, pin: 8, count: 300})
+    this.addStrand({device: deviceId, pin: 15, count: 300})
 
+    
     timer.setInterval(() => {
       var frame = this.buildFrame();
                   this.sendFrame(frame);
@@ -172,13 +184,13 @@ class PixelDriver {
           cmd: "get_frame",
           frameRate: this.fps,
           frameIdx: this.frameCounter,
-          pixelCount: this.groups[x].layout.length,
+          pixelCount: this.groups[x].layout.length
         })
       }
 
       this.lastTick = now;
       this.frameCounter++;       
-    }, "", "5.000s") 
+    }, "", "0.041s") 
   }
 
   genUUID() {
@@ -225,20 +237,20 @@ class PixelDriver {
     var devices = this.devices;
 
     for (var x in devices) {
-      if (devices[x].frame !== null) {
-        for (var i=0; i<devices[x].frame.length; i++) {
-          console.log(i, devices[x].frame[i]);
+      if (devices[x].frame !== null && this.sending !== true) {
+        try {
+          this.sending = true;
+          devices[x].interface.claim();
+          devices[x].out.transfer(devices[x].frame, () => {
+            devices[x].interface.release(() => {});
+            this.sending = false;
+          })
+
+          // var pixelCount = (devices[x].frame.length / 5) | 0;
+          // this.sendPixel(devices[x], pixelCount, 0)
+        } catch(e) {
+          console.log(e)
         }
-        
-        // console.log(devices[x].frame.slice(300, 600));
-        // try {
-        //   devices[x].interface.claim();
-        //   devices[x].out.transfer(devices[x].frame, () => {
-        //     devices[x].interface.release(() => {});
-        //   })
-        // } catch(e) {
-        //   console.log(e)
-        // }
       }
     }
 
@@ -249,6 +261,54 @@ class PixelDriver {
 
     // console.log(frame[0]);
     // ws281x.render(frame[0]);
+  }
+
+  sendPixels(device, pixelCount, idx) {
+    var pixel = new Uint8ClampedArray(1000),
+        pixelIdx = idx * 5;
+
+    for (var i=0; i<200; i++) {
+      var pos = i*5;
+
+      pixel[pos + 0] = device.frame[pixelIdx + 0];
+      pixel[pos + 1] = device.frame[pixelIdx + 1];
+      pixel[pos + 2] = device.frame[pixelIdx + 2];
+      pixel[pos + 3] = device.frame[pixelIdx + 3];
+      pixel[pos + 4] = device.frame[pixelIdx + 4];
+
+      pixelIdx++;
+    }
+
+    // console.log(pixelCount, idx, pixel);
+
+    device.out.transfer(pixel, () => {
+      if (idx + 200 >= pixelCount) {
+        device.interface.release(() => {});
+      } else {
+        this.sendPixel(device, pixelCount, idx + 200)
+      }
+    })
+  }
+
+  sendPixel(device, pixelCount, idx) {
+    var pixel = new Uint8ClampedArray(5),
+        pixelIdx = idx * 5;
+
+    pixel[0] = device.frame[pixelIdx + 0];
+    pixel[1] = device.frame[pixelIdx + 1];
+    pixel[2] = device.frame[pixelIdx + 2];
+    pixel[3] = device.frame[pixelIdx + 3];
+    pixel[4] = device.frame[pixelIdx + 4];
+
+    // console.log(pixelCount, idx, pixel);
+
+    device.out.transfer(pixel, () => {
+      if (idx + 1 >= pixelCount) {
+        device.interface.release(() => {});
+      } else {
+        this.sendPixel(device, pixelCount, idx + 1)
+      }
+    })
   }
 
   getDevices() {
